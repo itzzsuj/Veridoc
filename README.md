@@ -14,7 +14,7 @@ AI-powered document verification for Indian academic marksheets (TNBSE, Anna Uni
 - React + Material UI
 - FastAPI
 - Firebase
-- Claude API
+
 
 ## Installation
 ```bash
