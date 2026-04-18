@@ -37,25 +37,21 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { auth } from "../src/firebase";
+import { auth } from "./firebase";
 
 const COLORS = {
-  primary: "#1A237E",        // Deep Indigo - Trust & Security
-  secondary: "#00BCD4",      // Cyan - Technology & Forensics
-  accent: "#FF5722",         // Deep Orange - Alerts & Detection
-  success: "#4CAF50",        // Green - Verified/Genuine
-  warning: "#FFC107",        // Amber - Suspicious
-  error: "#F44336",          // Red - Forgery Detected
+  primary: "#1A237E",
+  secondary: "#00BCD4",
+  accent: "#FF5722",
+  success: "#4CAF50",
+  warning: "#FFC107",
+  error: "#F44336",
   background: "#F8F9FA",
   textDark: "#2C3E50",
   textLight: "#FFFFFF",
   info: "#2196F3",
   gradient: "linear-gradient(135deg, #1A237E 0%, #00BCD4 50%, #FF5722 100%)",
 };
-
-/* =====================================================
-   ✨ STYLED COMPONENTS
-===================================================== */
 
 const LoginContainer = styled(Box)({
   minHeight: "100vh",
@@ -174,11 +170,7 @@ const BackButton = styled(Button)({
   },
 });
 
-/* =====================================================
-   🔐 LOGIN COMPONENT
-===================================================== */
-
-const Login = () => {
+const Login = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -188,7 +180,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  /* 🔥 EMAIL PASSWORD LOGIN */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -201,10 +192,23 @@ const Login = () => {
         password
       );
 
-      console.log("Logged in:", userCredential.user);
-      navigate("/upload"); // Redirect to upload page for document verification
+      console.log("✅ Logged in:", userCredential.user.email);
+      
+      // ✅ Save auth state
+      localStorage.setItem('auth_token', userCredential.user.accessToken);
+      localStorage.setItem('user_email', userCredential.user.email);
+      localStorage.setItem('user_uid', userCredential.user.uid);
+      
+      // ✅ Update parent state
+      if (setIsAuthenticated) {
+        setIsAuthenticated(true);
+      }
+      
+      // ✅ Navigate to dashboard (lowercase!)
+      navigate("/dashboard");
+      
     } catch (err) {
-      console.error(err);
+      console.error("Login error:", err);
 
       if (err.code === "auth/user-not-found") {
         setError("No verification officer account found with this email");
@@ -217,12 +221,10 @@ const Login = () => {
       } else {
         setError("Login failed. Please try again.");
       }
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
-  /* 🔥 GOOGLE LOGIN */
   const handleGoogleLogin = async () => {
     setError("");
     setLoading(true);
@@ -234,19 +236,30 @@ const Login = () => {
       });
 
       const result = await signInWithPopup(auth, provider);
-      console.log("Google user:", result.user);
-      navigate("/upload"); // Redirect to document upload page
+      console.log("✅ Google user:", result.user.email);
+      
+      // ✅ Save auth state
+      localStorage.setItem('auth_token', result.user.accessToken);
+      localStorage.setItem('user_email', result.user.email);
+      localStorage.setItem('user_uid', result.user.uid);
+      
+      // ✅ Update parent state
+      if (setIsAuthenticated) {
+        setIsAuthenticated(true);
+      }
+      
+      // ✅ Navigate to dashboard (lowercase!)
+      navigate("/dashboard");
+      
     } catch (err) {
-      console.error(err);
+      console.error("Google login error:", err);
       setError("Google sign-in failed. Please try again.");
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
     <LoginContainer>
-      {/* Floating Background Icons - Forensic Theme */}
       <FloatingIcon delay="0s" sx={{ top: "15%", left: "8%" }}>
         <SecurityIcon sx={{ fontSize: 120, color: COLORS.primary }} />
       </FloatingIcon>
@@ -264,7 +277,6 @@ const Login = () => {
         style={{ width: "100%", maxWidth: 480, position: "relative", zIndex: 2 }}
       >
         <StyledPaper>
-          {/* Back Button */}
           <BackButton
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate("/")}
@@ -273,7 +285,6 @@ const Login = () => {
             Back to Home
           </BackButton>
 
-          {/* Header */}
           <Box sx={{ textAlign: "center", mb: 4 }}>
             <Avatar
               sx={{
@@ -304,7 +315,6 @@ const Login = () => {
             </Typography>
           </Box>
 
-          {/* Error Alert */}
           {error && (
             <Alert 
               severity="error" 
@@ -318,7 +328,6 @@ const Login = () => {
             </Alert>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
               <StyledTextField
@@ -368,7 +377,6 @@ const Login = () => {
                 }}
               />
 
-              {/* Remember Me & Forgot Password */}
               <Box sx={{ 
                 display: "flex", 
                 justifyContent: "space-between", 
@@ -405,7 +413,6 @@ const Login = () => {
                 </Typography>
               </Box>
 
-              {/* Sign In Button */}
               <GradientButton 
                 type="submit" 
                 fullWidth 
@@ -415,7 +422,6 @@ const Login = () => {
                 {loading ? "Authenticating..." : "Access Forensic System"}
               </GradientButton>
 
-              {/* Divider */}
               <Divider sx={{ my: 2 }}>
                 <Chip 
                   label="OR" 
@@ -428,7 +434,6 @@ const Login = () => {
                 />
               </Divider>
 
-              {/* Google Sign In */}
               <GoogleButton
                 fullWidth
                 onClick={handleGoogleLogin}
@@ -438,7 +443,6 @@ const Login = () => {
                 Continue with Google
               </GoogleButton>
 
-              {/* Sign Up Link */}
               <Box sx={{ textAlign: "center", mt: 2 }}>
                 <Typography variant="body2" sx={{ color: alpha(COLORS.textDark, 0.6) }}>
                   New verification officer?{" "}
@@ -457,7 +461,6 @@ const Login = () => {
                 </Typography>
               </Box>
 
-              {/* Security & Forensic Badges */}
               <Stack spacing={1.5} sx={{ mt: 2 }}>
                 <Box sx={{ 
                   display: "flex", 

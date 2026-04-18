@@ -1,285 +1,236 @@
-// src/components/Sidebar.js
-import React, { useState } from "react";
-import {
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  Avatar,
-  Divider,
-  Chip,
-  Collapse,
-} from "@mui/material";
-import { styled, alpha } from "@mui/material/styles";
-import { useNavigate, useLocation } from "react-router-dom";
-
-// Icons
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import ScienceIcon from "@mui/icons-material/Science";
-import DescriptionIcon from "@mui/icons-material/Description";
-import HistoryIcon from "@mui/icons-material/History";
-import AssessmentIcon from "@mui/icons-material/Assessment";
-import SettingsIcon from "@mui/icons-material/Settings";
-import LogoutIcon from "@mui/icons-material/Logout";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import GppGoodIcon from "@mui/icons-material/GppGood";
-import VerifiedIcon from "@mui/icons-material/Verified";
-
-const COLORS = {
-  primary: "#1A237E",
-  secondary: "#00BCD4",
-  accent: "#FF5722",
-  success: "#4CAF50",
-  background: "#F8F9FA",
-  textDark: "#2C3E50",
-  sidebarBg: "#FFFFFF",
-  sidebarWidth: 280,
-};
-
-const StyledDrawer = styled(Drawer)({
-  width: COLORS.sidebarWidth,
-  flexShrink: 0,
-  "& .MuiDrawer-paper": {
-    width: COLORS.sidebarWidth,
-    boxSizing: "border-box",
-    background: COLORS.sidebarBg,
-    borderRight: `1px solid ${alpha(COLORS.primary, 0.08)}`,
-    boxShadow: "4px 0 20px rgba(0, 0, 0, 0.02)",
-  },
-});
-
-const LogoBox = styled(Box)({
-  display: "flex",
-  alignItems: "center",
-  gap: "12px",
-  padding: "24px 20px",
-  borderBottom: `1px solid ${alpha(COLORS.primary, 0.08)}`,
-  marginBottom: "16px",
-});
-
-const StyledListItemButton = styled(ListItemButton)(({ active }) => ({
-  borderRadius: "12px",
-  margin: "4px 12px",
-  padding: "10px 16px",
-  backgroundColor: active ? alpha(COLORS.primary, 0.08) : "transparent",
-  color: active ? COLORS.primary : alpha(COLORS.textDark, 0.7),
-  "&:hover": {
-    backgroundColor: alpha(COLORS.primary, 0.05),
-  },
-  "& .MuiListItemIcon-root": {
-    color: active ? COLORS.primary : alpha(COLORS.textDark, 0.5),
-    minWidth: "40px",
-  },
-}));
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { 
+  Upload, FileSearch, History, Settings, Home, Shield, Activity 
+} from 'lucide-react';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [openReports, setOpenReports] = useState(false);
-
-  const handleReportsClick = () => {
-    setOpenReports(!openReports);
-  };
-
-  const navItems = [
-    {
-      section: "Verification",
-      items: [
-        { path: "/upload", label: "Upload Document", icon: <UploadFileIcon /> },
-        { path: "/analysis", label: "Forensic Analysis", icon: <ScienceIcon /> },
-      ],
-    },
-    {
-      section: "Management",
-      items: [
-        { path: "/templates", label: "Template Library", icon: <DescriptionIcon /> },
-        { path: "/history", label: "Verification History", icon: <HistoryIcon /> },
-      ],
-    },
-    {
-      section: "Reports & Settings",
-      items: [
-        { 
-          label: "Forensic Reports", 
-          icon: <AssessmentIcon />,
-          hasSubmenu: true,
-          subItems: [
-            { path: "/reports/daily", label: "Daily Reports" },
-            { path: "/reports/monthly", label: "Monthly Summary" },
-            { path: "/reports/audit", label: "Audit Logs" },
-          ]
-        },
-        { path: "/settings", label: "Settings", icon: <SettingsIcon /> },
-      ],
-    },
+  
+  const menuItems = [
+    { id: 'home', label: 'Dashboard', icon: Home, path: '/dashboard' },
+    { id: 'upload', label: 'Upload Document', icon: Upload, path: '/upload' },
+    { id: 'analysis', label: 'Live Analysis', icon: Activity, path: '/analysis', badge: 'LIVE' },
+    { id: 'reports', label: 'Forensic Reports', icon: FileSearch, path: '/reports' },
+    { id: 'history', label: 'History', icon: History, path: '/history' },
   ];
 
-  const isActive = (path) => {
-    return location.pathname === path;
+  const bottomItems = [
+    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
+  ];
+
+  const handleNavigate = (path) => {
+    navigate(path);
   };
 
-  const handleLogout = async () => {
-    // Add logout logic here
-    navigate("/login");
+  // Determine active page from current URL
+  const getActivePage = () => {
+    const path = location.pathname;
+    if (path.includes('/upload')) return 'upload';
+    if (path.includes('/analysis')) return 'analysis';
+    if (path.includes('/reports')) return 'reports';
+    if (path.includes('/history')) return 'history';
+    if (path.includes('/settings')) return 'settings';
+    return 'home';
   };
+
+  const activePage = getActivePage();
 
   return (
-    <StyledDrawer variant="permanent" anchor="left">
+    <div className="sidebar">
       {/* Logo */}
-      <LogoBox>
-        <GppGoodIcon sx={{ color: COLORS.primary, fontSize: 32 }} />
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 800,
-            background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          VERIDOC
-        </Typography>
-      </LogoBox>
+      <div className="sidebar-header">
+        <div className="logo">
+          <Shield size={28} className="logo-icon" />
+          <span className="logo-text">VeriDoc AI</span>
+        </div>
+        <div className="logo-badge">Forensic Suite</div>
+      </div>
 
-      {/* User Profile */}
-      <Box sx={{ px: 3, mb: 3, textAlign: "center" }}>
-        <Avatar
-          sx={{
-            width: 80,
-            height: 80,
-            margin: "0 auto",
-            background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-            mb: 2,
-          }}
-        >
-          VO
-        </Avatar>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          Verification Officer
-        </Typography>
-        <Chip
-          label="Active"
-          size="small"
-          sx={{
-            mt: 1,
-            bgcolor: alpha(COLORS.success, 0.1),
-            color: COLORS.success,
-            fontSize: "0.7rem",
-          }}
-        />
-      </Box>
-
-      <Divider sx={{ mb: 2 }} />
-
-      {/* Navigation */}
-      <Box sx={{ flex: 1 }}>
-        {navItems.map((section, idx) => (
-          <Box key={idx}>
-            <Typography
-              variant="caption"
-              sx={{
-                px: 3,
-                py: 1,
-                display: "block",
-                color: alpha(COLORS.textDark, 0.5),
-                fontWeight: 600,
-                letterSpacing: "0.5px",
-              }}
+      {/* Main Navigation */}
+      <nav className="sidebar-nav">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activePage === item.id;
+          
+          return (
+            <button
+              key={item.id}
+              className={`nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => handleNavigate(item.path)}
             >
-              {section.section}
-            </Typography>
-            <List disablePadding>
-              {section.items.map((item, itemIdx) => (
-                <React.Fragment key={itemIdx}>
-                  {item.hasSubmenu ? (
-                    <>
-                      <StyledListItemButton onClick={handleReportsClick}>
-                        <ListItemIcon>{item.icon}</ListItemIcon>
-                        <ListItemText primary={item.label} />
-                        {openReports ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                      </StyledListItemButton>
-                      <Collapse in={openReports} timeout="auto" unmountOnExit>
-                        <List component="div" disablePadding>
-                          {item.subItems.map((subItem, subIdx) => (
-                            <ListItemButton
-                              key={subIdx}
-                              sx={{
-                                pl: 7,
-                                borderRadius: "12px",
-                                margin: "2px 12px",
-                                "&:hover": {
-                                  backgroundColor: alpha(COLORS.primary, 0.05),
-                                },
-                              }}
-                              onClick={() => navigate(subItem.path)}
-                            >
-                              <ListItemText
-                                primary={subItem.label}
-                                primaryTypographyProps={{ variant: "body2" }}
-                              />
-                            </ListItemButton>
-                          ))}
-                        </List>
-                      </Collapse>
-                    </>
-                  ) : (
-                    <StyledListItemButton
-                      active={isActive(item.path) ? 1 : 0}
-                      onClick={() => navigate(item.path)}
-                    >
-                      <ListItemIcon>{item.icon}</ListItemIcon>
-                      <ListItemText primary={item.label} />
-                      {isActive(item.path) && (
-                        <VerifiedIcon sx={{ fontSize: 16, color: COLORS.success }} />
-                      )}
-                    </StyledListItemButton>
-                  )}
-                </React.Fragment>
-              ))}
-            </List>
-          </Box>
-        ))}
-      </Box>
+              <Icon size={20} />
+              <span>{item.label}</span>
+              {item.badge && (
+                <span className="nav-badge">{item.badge}</span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
 
-      <Divider sx={{ my: 2 }} />
+      {/* Bottom Navigation */}
+      <div className="sidebar-footer">
+        {bottomItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activePage === item.id;
+          
+          return (
+            <button
+              key={item.id}
+              className={`nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => handleNavigate(item.path)}
+            >
+              <Icon size={20} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-      {/* Footer - Logout */}
-      <Box sx={{ p: 2, mb: 2 }}>
-        <StyledListItemButton onClick={handleLogout}>
-          <ListItemIcon>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
-        </StyledListItemButton>
+      {/* Status */}
+      <div className="sidebar-status">
+        <div className="status-indicator online">
+          <span className="status-dot"></span>
+          <span>System Online</span>
+        </div>
+        <div className="status-indicator">
+          <span className="status-dot"></span>
+          <span>5 Agents Ready</span>
+        </div>
+      </div>
 
-        {/* Agent Status Indicator */}
-        <Box sx={{ mt: 2, px: 2 }}>
-          <Typography variant="caption" sx={{ color: alpha(COLORS.textDark, 0.5), display: "block", mb: 1 }}>
-            5 Agents Active
-          </Typography>
-          <Box sx={{ display: "flex", gap: 0.5 }}>
-            {["PDF", "CV", "CNN", "LLM", "RAG"].map((agent, i) => (
-              <Chip
-                key={i}
-                label={agent}
-                size="small"
-                sx={{
-                  fontSize: "0.65rem",
-                  height: 20,
-                  bgcolor: alpha(COLORS.secondary, 0.1),
-                  color: COLORS.secondary,
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
-      </Box>
-    </StyledDrawer>
+      <style jsx>{`
+        .sidebar {
+          width: 260px;
+          height: 100vh;
+          background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 100%);
+          color: #ffffff;
+          display: flex;
+          flex-direction: column;
+          padding: 20px 12px;
+          border-right: 1px solid rgba(255, 255, 255, 0.1);
+          position: fixed;
+          left: 0;
+          top: 0;
+        }
+
+        .sidebar-header {
+          margin-bottom: 32px;
+          padding: 0 8px;
+        }
+
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 8px;
+        }
+
+        .logo-icon {
+          color: #6366f1;
+        }
+
+        .logo-text {
+          font-size: 20px;
+          font-weight: 700;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .logo-badge {
+          font-size: 11px;
+          color: #a0aec0;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          margin-left: 38px;
+        }
+
+        .sidebar-nav {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .nav-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 16px;
+          background: transparent;
+          border: none;
+          color: #a0aec0;
+          font-size: 14px;
+          font-weight: 500;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          width: 100%;
+          text-align: left;
+          position: relative;
+        }
+
+        .nav-item:hover {
+          background: rgba(99, 102, 241, 0.1);
+          color: #ffffff;
+        }
+
+        .nav-item.active {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-badge {
+          margin-left: auto;
+          font-size: 10px;
+          padding: 2px 6px;
+          background: #ef4444;
+          color: white;
+          border-radius: 4px;
+          font-weight: 600;
+        }
+
+        .sidebar-footer {
+          padding-top: 20px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          margin-top: 20px;
+        }
+
+        .sidebar-status {
+          padding: 16px 8px 8px;
+          font-size: 12px;
+          color: #a0aec0;
+        }
+
+        .status-indicator {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 6px;
+        }
+
+        .status-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #10b981;
+        }
+
+        .status-indicator.online .status-dot {
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
+    </div>
   );
 };
 
